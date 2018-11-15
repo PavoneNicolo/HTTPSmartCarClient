@@ -6,7 +6,6 @@ using System.Messaging;
 
 namespace Client
 {
-    
     class MessageQueuing
     {
         public MessageQueue messageQueue;
