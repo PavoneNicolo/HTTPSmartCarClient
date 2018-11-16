@@ -15,7 +15,7 @@ namespace Client
             //init sensors
             MessageQueuing queue = new MessageQueuing();
             ThreadStart threadDelegate = new ThreadStart(Send.sendData);
-            Send.msmq = queue;
+            
             Thread t = new Thread(threadDelegate);
             t.Start();
             RandomGenerator random = new RandomGenerator();
@@ -48,15 +48,15 @@ namespace Client
         }
     }
     class Send{
-        public static MessageQueuing msmq;
-       
+
+        public static MessageQueuing messageQueuing;
         public static void sendData()
         {
+            messageQueuing = new MessageQueuing();
             while (true)
             {
-                Message m = msmq.messageQueue.Receive();
-                m.Formatter = new XmlMessageFormatter(new String[] { "System.String,mscorlib" });
-                Console.WriteLine("Message popped from queue: {0} ", m.Body);
+                Message m = messageQueuing.messageQueue.Receive();
+                m.Formatter = new XmlMessageFormatter(new string[] { "System.String,mscorlib" });
                 try
                 {
                     HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.1.16:8080/data");
@@ -67,9 +67,10 @@ namespace Client
                             streamWriter.Write(m.Body);
                     }
                     var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                    Console.Out.WriteLine(httpResponse.StatusCode);  
+                    Console.Out.WriteLine("Sent : {0}", m.Body.ToString()); 
                     }catch(Exception e) {
-                        msmq.addMessage(m.Body.ToString());
+                        Console.WriteLine("Waiting for an internet connection to send data...");
+                        messageQueuing.messageQueue.Send(m.Body.ToString());
                     }
                 }
             } 
