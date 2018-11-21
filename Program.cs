@@ -26,15 +26,23 @@ namespace Client
             while (true)
             {
                 long epoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                var Speed = speed.getSpeed();
+                string s = "temperatura:" + temp.getTemperature();
                 var x = new
                 {
-                    Temperature = temp.getTemperature(),
-                    Speed = speed.getSpeed(),
-                    Gps = new
-                    {
-                        lat = gps.getLat(),
-                        lon = gps.getLon()
+                    fields = new[] {
+                        new { fldName = "temperatura", value = temp.getTemperature() },
+                        new { fldName = "velocità", value = speed.getSpeed() },
+                        new { fldName = "lat", value = gps.getLat() },
+                        new { fldName = "lon", value = gps.getLon() }
                     },
+                    tags = new[] {
+                        new { fldName = "temperatura", value = temp.getTemperature() },
+                        new { fldName = "velocità", value = speed.getSpeed() },
+                        new { fldName = "lat", value = gps.getLat() },
+                        new { fldName = "lon", value = gps.getLon() }
+                    },
+                    
                     Direction = dir.getDirection(),
                     Timestamp = epoch
                 };
@@ -59,12 +67,15 @@ namespace Client
                 m.Formatter = new XmlMessageFormatter(new string[] { "System.String,mscorlib" });
                 try
                 {
-                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.1.16:8080/data");
+                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.1.59:8080/v1/sensors/write");
+                    //HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://192.168.1.6:8080/data");
                     httpWebRequest.ContentType = "text/json";
                     httpWebRequest.Method = "POST";
+
                     using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
                     {
                             streamWriter.Write(m.Body);
+             
                     }
                     var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
                     Console.Out.WriteLine("Sent : {0}", m.Body.ToString()); 
