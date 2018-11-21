@@ -43,8 +43,8 @@ namespace Client
                         new { fldName = "lon", value = gps.getLon() }
                     },
                     
-                    Direction = dir.getDirection(),
-                    Timestamp = epoch
+                    direction = dir.getDirection(),
+                    timestamp = epoch
                 };
 
                 queue.addMessage(JsonConvert.SerializeObject(x));
